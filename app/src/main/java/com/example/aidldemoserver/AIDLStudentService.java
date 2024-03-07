@@ -5,82 +5,45 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AIDLAdditionService extends Service {
+public class AIDLStudentService extends Service {
     private static final int MAX_MARKS = 100;
     private static final float PASSING_PERCENTAGE = 33.0f;
-    List<Student> students = new ArrayList<>();
 
-    public AIDLAdditionService() {
+
+    public AIDLStudentService() {
     }
 
     @Override
     public IBinder onBind(Intent intent) {
+        // TODO: Return the communication channel to the service.
+//        throw new UnsupportedOperationException("Not yet implemented");
         return binder;
     }
 
-    private final IMyAidlAdditionInterface.Stub binder = new IMyAidlAdditionInterface.Stub() {
-        @Override
-        public int calculateAddition(int a, int b) throws RemoteException {
-            return a + b;
-        }
+    List<Student> students = new ArrayList<>();
 
+    private final IStudentInterface.Stub binder = new IStudentInterface.Stub() {
         @Override
-        public int calculateSubtraction(int a, int b) throws RemoteException {
-            return a - b;
-        }
-
-        @Override
-        public int getRandomNumber() throws RemoteException {
-            int random = (int) (Math.random() * 100);
-            return random;
-        }
-
-        @Override
-        public int sumOfArray(int[] intArray) throws RemoteException {
-            int sum = 0;
-            for (int i = 0; i < intArray.length; i++) {
-                sum += intArray[i];
-            }
-            return sum;
-        }
-
-        @Override
-        public String concateString(String[] strArray) throws RemoteException {
-            return TextUtils.join(",", strArray);
-        }
-
-        @Override
-        public boolean basicTypes(int anInt, long aLong, boolean aBoolean, float aFloat, double aDouble, String aString) throws RemoteException {
-            return (anInt == (int) anInt) && (aLong == (Long) aLong) && (aBoolean == (Boolean) aBoolean) && (aFloat == (Float) aFloat) && (aDouble == (Double) aDouble) && (aString == (String) aString);
-        }
-
-        @Override
-        public String getStudentDetails(Student student) {
+        public String getStudentDetails(Student student) throws RemoteException {
             List<Marks> marksList = student.getMarks();
-            StringBuilder studentStrBuilder = new StringBuilder();
-
-            studentStrBuilder.append("First Name: " + student.getFname());
-            studentStrBuilder.append(", Last Name: " + student.getLname());
-            studentStrBuilder.append(", RollNo: " + student.getRollno());
-            studentStrBuilder.append(", Address: " + student.getAddress());
-            studentStrBuilder.append(", PhoneNo: " + student.getPhoneno());
-            studentStrBuilder.append(", Marks: ");
+            StringBuilder marksStringBuilder = new StringBuilder();
 
             for (Marks marks : marksList) {
-                studentStrBuilder.append(marks.getSubjectName()).append(": ").append(marks.getMark()).append(" ");
+                marksStringBuilder.append(marks.getSubjectName()).append(": ").append(marks.getMark()).append(" ");
             }
 
-            return studentStrBuilder.toString();
+            String allMarks = marksStringBuilder.toString();
+
+            return "First Name: " + student.getFname() + ", Last Name: " + student.getLname() + ", RollNo: " + student.getRollno() + ", Address: " + student.getAddress() + ", PhoneNo: " + student.getPhoneno() + ", Marks: " + allMarks;
         }
 
         @Override
-        public Student createStudent() {
+        public Student createStudent() throws RemoteException {
             List<Marks> marksList = new ArrayList<>();
             marksList.add(new Marks("Maths", 90));
             marksList.add(new Marks("Science", 85));
@@ -93,7 +56,7 @@ public class AIDLAdditionService extends Service {
 
         @Override
         public String getStudentDetails1() throws RemoteException {
-            List<String> strings = new ArrayList<>();
+            List<String> strings = new ArrayList<String>();
             for (Student s : students) {
                 strings.add(s.toString());
             }
@@ -158,6 +121,7 @@ public class AIDLAdditionService extends Service {
         for (Marks marks : marksList) {
             totalMarks += marks.getMark();
         }
+
         float percentage = (totalMarks / (marksList.size() * MAX_MARKS)) * 100;
         return percentage;
 
